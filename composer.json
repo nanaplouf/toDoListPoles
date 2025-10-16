@@ -1,0 +1,13 @@
+{
+	"name": "todolist/poles",
+	"description": "Projet PHP MVC avec MongoDB et Nginx sous Docker",
+	"autoload": {
+		"psr-4": {
+			"App\\": "src/",
+			"Config\\": "config/"
+		}
+	},
+	"require": {
+		"mongodb/mongodb": "^1.20"
+	}
+}

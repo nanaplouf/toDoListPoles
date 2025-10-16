@@ -1,0 +1,16 @@
+# Ignorer les dépendances PHP
+/vendor/
+
+# Ignorer les fichiers temporaires ou de cache
+/.idea/
+/.vscode/
+/node_modules/
+/.env
+composer.lock
+
+# Ignorer les fichiers système
+.DS_Store
+Thumbs.db
+
+# Ignorer les fichiers Docker inutiles
+*.log
