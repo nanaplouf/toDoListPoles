@@ -1,4 +1,5 @@
 <?php
+
 namespace Config;
 
 use MongoDB\Driver\Manager;
@@ -11,7 +12,7 @@ class Database
         try {
             // Utilise le nom du service Docker "mongodb"
             $mongo = new Manager("mongodb://mongodb:27017");
-            var_dump($mongo);
+            //var_dump($mongo);
             //$mongo = new \MongoDB\Driver\Manager("mongodb://mongodb:27017");
         } catch (Exception $e) {
             die('Erreur : ' . $e->getMessage());

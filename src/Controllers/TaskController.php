@@ -2,6 +2,7 @@
 
 namespace App\Controllers;
 
+use App\Models\Task;
 use App\Utils\AbstractController;
 
 class TaskController extends AbstractController
@@ -18,6 +19,13 @@ class TaskController extends AbstractController
             $this->totalCheck('status', $status);
 
             //$this->debug($this->arrayError);
+
+            if (empty($this->arrayError)) {
+                $today = date("Y-m-d");
+                $task = new Task(null, $title, $description, $status, $today, null);
+                $task->saveTask();
+                $this->redirectToRoute('/', 200);
+            }
         }
         require_once(__DIR__ . "/../Views/formTask.view.php");
     }
