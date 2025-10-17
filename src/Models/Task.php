@@ -120,6 +120,64 @@ class Task
         }
     }
 
+    /**
+     * Récupère une tâche spécifique selon son ID
+     */
+    public function getTaskById(): ?Task
+    {
+        // Récupère la connexion à MongoDB (via ma classe Database)
+        $mongo = Database::getConnection();
+        // Nom de la base et de la collection (équivalent des tables en SQL)
+        $namedatabase = 'toDoListPoles';
+        $nameCollection = 'task';
+
+        //l'id de notre objet courant
+        $id = $this->id;
+
+        // Le filtre "_id" permet de cibler un document précis
+        // On doit transformer l'id en objet MongoDB\BSON\ObjectID
+        $filter = ['_id' => new \MongoDB\BSON\ObjectID($id)];
+        $query = new Query($filter);
+
+        try {
+            // Exécute la requête et récupère un curseurr = objet qui contient les résultats d’une requête
+            $cursor = $mongo->executeQuery($namedatabase . "." . $nameCollection, $query);
+
+            // Convertit le curseur en tableau de résultats
+            $result = $cursor->toArray();
+
+            // Si on trouve un résultat, on crée un objet Task
+            if (!empty($result)) {
+                //Si mon resultat à un champ modification_date alors
+                if (isset($result->modification_date)) {
+                    return new Task(
+                        $result->_id,
+                        $result->title,
+                        $result->description,
+                        $result->status,
+                        $result->creation_date,
+                        $result->modification_date
+                    );
+                } else {
+                    return new Task(
+                        $result->_id,
+                        $result->title,
+                        $result->description,
+                        $result->status,
+                        $result->creation_date,
+                        null
+                    );
+                }
+            }
+
+            // Si rien n’est trouvé
+            return null;
+        } catch (\Exception $e) {
+            // En cas d’erreur, on renvoie un tableau vide
+            return null;
+        }
+    }
+
 
     //les getteurs
     public function getId(): ?string
