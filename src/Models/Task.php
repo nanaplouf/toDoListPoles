@@ -44,8 +44,7 @@ class Task
             'title' => $this->title,
             'description' => $this->description,
             'status' => $this->status,
-            'creation_date' => $this->creation_date,
-            'modification_date' => $this->modification_date,
+            'creation_date' => $this->creation_date
         ];
 
         // Création d’un objet "BulkWrite"
@@ -63,6 +62,52 @@ class Task
             // En cas d’erreur (connexion, requête, etc.)
             echo "Erreur d'insertion : " . $e->getMessage();
             return false;
+        }
+    }
+
+    /**
+     * Récupère toutes les tâches présentes dans la collection
+     */
+    public function getAllTasks()
+    {
+        // Récupère la connexion à MongoDB (via ma classe Database)
+        $mongo = Database::getConnection();
+        // Nom de la base et de la collection (équivalent des tables en SQL)
+        $namedatabase = 'toDoListPoles';
+        $nameCollection = 'task';
+
+        // La requête vide [] signifie : "récupère tous les documents"
+        $query = new Query([]);
+
+        // Création d'un tableau vide
+        $tasks = [];
+
+        try {
+            // Exécute la requête et récupère un curseurr = objet qui contient les résultats d’une requête
+            $cursor = $mongo->executeQuery($namedatabase . "." . $nameCollection, $query);
+
+            // Convertit le curseur en tableau de résultats
+            $result = $cursor->toArray();
+
+            // Pour chaque document renvoyé, on crée un objet Task
+            foreach ($result as $data) {
+                $modificationDate = $data->modification_date ? $data->modification_date : "";
+
+                $tasks[] = new Task(
+                    $data->_id,
+                    $data->title,
+                    $data->description,
+                    $data->status,
+                    $data->creation_date,
+                    $modificationDate
+                );
+            }
+
+            // Retourne le tableau d’objets Task
+            return $tasks;
+        } catch (\Exception $e) {
+            // En cas d’erreur, on renvoie un tableau vide
+            return [];
         }
     }
 
