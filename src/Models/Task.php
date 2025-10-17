@@ -91,16 +91,25 @@ class Task
 
             // Pour chaque document renvoyé, on crée un objet Task
             foreach ($result as $data) {
-                $modificationDate = $data->modification_date ? $data->modification_date : "";
-
-                $tasks[] = new Task(
-                    $data->_id,
-                    $data->title,
-                    $data->description,
-                    $data->status,
-                    $data->creation_date,
-                    $modificationDate
-                );
+                if (isset($data->modification_date)) {
+                    $tasks[] = new Task(
+                        $data->_id,
+                        $data->title,
+                        $data->description,
+                        $data->status,
+                        $data->creation_date,
+                        $data->modification_date
+                    );
+                } else {
+                    $tasks[] = new Task(
+                        $data->_id,
+                        $data->title,
+                        $data->description,
+                        $data->status,
+                        $data->creation_date,
+                        null
+                    );
+                }
             }
 
             // Retourne le tableau d’objets Task
