@@ -44,7 +44,8 @@ class Task
             'title' => $this->title,
             'description' => $this->description,
             'status' => $this->status,
-            'creation_date' => $this->creation_date
+            'creation_date' => $this->creation_date,
+            'modification_date' => $this->modification_date
         ];
 
         // Création d’un objet "BulkWrite"
@@ -91,25 +92,14 @@ class Task
 
             // Pour chaque document renvoyé, on crée un objet Task
             foreach ($result as $data) {
-                if (isset($data->modification_date)) {
-                    $tasks[] = new Task(
-                        $data->_id,
-                        $data->title,
-                        $data->description,
-                        $data->status,
-                        $data->creation_date,
-                        $data->modification_date
-                    );
-                } else {
-                    $tasks[] = new Task(
-                        $data->_id,
-                        $data->title,
-                        $data->description,
-                        $data->status,
-                        $data->creation_date,
-                        null
-                    );
-                }
+                $tasks[] = new Task(
+                    $data->_id,
+                    $data->title,
+                    $data->description,
+                    $data->status,
+                    $data->creation_date,
+                    $data->modification_date
+                );
             }
 
             // Retourne le tableau d’objets Task
@@ -148,26 +138,14 @@ class Task
 
             // Si on trouve un résultat, on crée un objet Task
             if (!empty($result)) {
-                //Si mon resultat à un champ modification_date alors
-                if (isset($result->modification_date)) {
-                    return new Task(
-                        $result->_id,
-                        $result->title,
-                        $result->description,
-                        $result->status,
-                        $result->creation_date,
-                        $result->modification_date
-                    );
-                } else {
-                    return new Task(
-                        $result->_id,
-                        $result->title,
-                        $result->description,
-                        $result->status,
-                        $result->creation_date,
-                        null
-                    );
-                }
+                return new Task(
+                    $result[0]->_id,
+                    $result[0]->title,
+                    $result[0]->description,
+                    $result[0]->status,
+                    $result[0]->creation_date,
+                    $result[0]->modification_date
+                );
             }
 
             // Si rien n’est trouvé
@@ -175,6 +153,44 @@ class Task
         } catch (\Exception $e) {
             // En cas d’erreur, on renvoie un tableau vide
             return null;
+        }
+    }
+
+    public function editTask()
+    {
+        // Récupère la connexion à MongoDB (via ma classe Database)
+        $mongo = Database::getConnection();
+        // Nom de la base et de la collection (équivalent des tables en SQL)
+        $namedatabase = 'toDoListPoles';
+        $nameCollection = 'task';
+
+        //l'id de notre objet courant
+        $id = $this->id;
+        // Données à mettre à jour
+        $data = [
+            'title' => $this->title,
+            'description' => $this->description,
+            'status' => $this->status,
+            'creation_date' => $this->creation_date,
+            'modification_date' => $this->modification_date
+        ];
+
+        // Création de l’opération de mise à jour
+        $bulk = new BulkWrite();
+
+        // On recherche le document à modifier via son _id
+        $filter = ['_id' => new \MongoDB\BSON\ObjectID($id)];
+
+        // L’opérateur "$set" permet de modifier uniquement les champs précisés
+        $bulk->update($filter, ['$set' => $data]);
+
+        try {
+            $mongo->executeBulkWrite($namedatabase . "." . $nameCollection, $bulk);
+            // Retourne true si la mise à jour a réussi
+            return true;
+        } catch (Exception $e) {
+            // Retourne false en cas d'erreur
+            return false;
         }
     }
 
