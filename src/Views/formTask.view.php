@@ -1,12 +1,13 @@
 <?php
 require_once(__DIR__ . "/partials/head.view.php");
 ?>
-<h1 class="text-center text-warning fw-bold m-2">Ajouter une tache :</h1>
+<h1 class="text-center text-warning fw-bold m-2"><?php if (isset($myTask)) echo 'Modifier une tache';
+                                                    else echo 'Ajouter une tache'; ?> :</h1>
 <form method="POST">
     <div class="col-md-4 mx-auto d-block mt-5">
         <div class="mb-3">
             <label for="title" class="form-label fw-bold text-white">Titre</label>
-            <input type="text" name="title" class="form-control">
+            <input type="text" name="title" class="form-control" value="<?php if (isset($myTask)) echo  $myTask->getTitle() ?>">
             <?php
             if (isset($this->arrayError['title'])) {
                 echo "<p class='text-danger'> {$this->arrayError['title']} </p>";
@@ -15,7 +16,7 @@ require_once(__DIR__ . "/partials/head.view.php");
         </div>
         <div class="mb-3">
             <label for="description" class="form-label fw-bold text-white">Description de la tache</label>
-            <textarea name="description" rows="10" class="form-control"></textarea>
+            <textarea name="description" rows="10" class="form-control"><?php if (isset($myTask)) echo  $myTask->getDescription() ?></textarea>
             <?php
             if (isset($this->arrayError['description'])) {
                 echo "<p class='text-danger'> {$this->arrayError['description']} </p>";
@@ -35,7 +36,14 @@ require_once(__DIR__ . "/partials/head.view.php");
             <?php
             } ?>
         </div>
-        <button class="btn btn-warning" type="submit" name="addTask">Ajouter</button>
+        <?php
+        if (isset($myTask)) {
+            echo "<button class='btn btn-warning' type='submit' name='editTask'>Modifier</button>";
+        } else {
+            echo "<button class='btn btn-warning' type='submit' name='addTask'>Ajouter</button>";
+        }
+
+        ?>
     </div>
 </form>
 <?php
