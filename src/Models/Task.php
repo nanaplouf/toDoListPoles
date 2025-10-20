@@ -194,6 +194,78 @@ class Task
         }
     }
 
+    /**
+     * Supprime une tâche de la base MongoDB
+     */
+    public function deleteTask()
+    {
+        // Récupère la connexion à MongoDB (via ma classe Database)
+        $mongo = Database::getConnection();
+        // Nom de la base et de la collection (équivalent des tables en SQL)
+        $namedatabase = 'toDoListPoles';
+        $nameCollection = 'task';
+
+        $id = $this->id;
+        // Création d'un objet BulkWrite pour la suppression
+        $bulk = new BulkWrite();
+        // Spécifier le filtre pour trouver le document à supprimer par ID
+        $filter = ['_id' => new \MongoDB\BSON\ObjectID($id)];
+        // Ajouter l'opération de suppression
+        $bulk->delete($filter);
+        try {
+            $mongo->executeBulkWrite($namedatabase . "." . $nameCollection, $bulk);
+            // Retourne true si la mise à jour a réussi
+            return true;
+        } catch (Exception $e) {
+            // Retourne false en cas d'erreur
+            return false;
+        }
+    }
+
+    public function getTasksByStatus(string $status): array
+    {
+        // Récupère la connexion à MongoDB (via ma classe Database)
+        $mongo = Database::getConnection();
+        // Nom de la base et de la collection (équivalent des tables en SQL)
+        $namedatabase = 'toDoListPoles';
+        $nameCollection = 'task';
+
+        // 🔍 Création du filtre : on ne récupère que les tâches avec le statut demandé
+        $filter = ['status' => $status];
+
+        // Création de la requête MongoDB avec le filtre
+        $query = new Query($filter);
+
+        try {
+            // Exécute la requête et récupère un "curseur" (ensemble de résultats potentiellement volumineux)
+            $cursor = $mongo->executeQuery($namedatabase . "." . $nameCollection, $query);
+
+            // Convertit le curseur en tableau PHP classique
+            $result = $cursor->toArray();
+
+            // Tableau qui contiendra les objets Task
+            $tasks = [];
+
+            // Pour chaque document retourné, on instancie un objet Task
+            foreach ($result as $data) {
+                $tasks[] = new Task(
+                    $data->_id,
+                    $data->title,
+                    $data->description,
+                    $data->status,
+                    $data->creation_date,
+                    $data->modification_date
+                );
+            }
+
+            // Retourne le tableau de tâches
+            return $tasks;
+        } catch (\Exception $e) {
+            // En cas d’erreur, on retourne un tableau vide pour éviter de casser le code
+            return [];
+        }
+    }
+
 
     //les getteurs
     public function getId(): ?string
