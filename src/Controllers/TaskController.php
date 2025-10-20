@@ -40,7 +40,7 @@ class TaskController extends AbstractController
             }
             $this->redirectToRoute('/', 302);
         }
-        $this->redirectToRoute('/', 302);
+        $this->redirectToRoute('/404', 404);
     }
 
     public function editTask()
@@ -69,8 +69,23 @@ class TaskController extends AbstractController
 
                 require_once(__DIR__ . "/../Views/formTask.view.php");
             }
-            $this->redirectToRoute('/', 302);
+            $this->redirectToRoute('/404', 404);
         }
-        $this->redirectToRoute('/', 302);
+        $this->redirectToRoute('/404', 404);
+    }
+
+    public function deleteTask()
+    {
+        if (isset($_POST['id'])) {
+            $id = htmlspecialchars($_POST['id']);
+            $task = new Task($id, null, null, null, null, null);
+            $myTask = $task->getTaskById();
+            if ($myTask) {
+                $myTask->deleteTask();
+                $this->redirectToRoute('/', 302);
+            }
+            $this->redirectToRoute('/404', 404);
+        }
+        $this->redirectToRoute('/404', 404);
     }
 }
